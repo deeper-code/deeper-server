@@ -530,6 +530,20 @@ user$ ./deviceQuery
 
 #### 2.1.6 Tensorflow/Keras的安装
 
+安装tensorflow、keras、pytorch、caffa等框架就相对简单很多了，使用pip安装即可，或者conda安装。
+
+``` shell
+# 安装tensorflow-gpu 
+user$ sudo pip3 install tensorflow-gpu # ---> 安装最新版tensorflow gpu版本
+# 也可以指定安装版本
+user$ sudo pip3 install tensorflow-gpu==1.6.0 # ---> 安装1.6.0版本
+# keras 安装
+user$ sudo pip3 install keras==2.2.0 
+#
+# 这里做一点补充， 由于我们的设备一般自带python2.x， 我们也安装了python3.x
+# 我们一般使用python3.x(python2.x已经不再维护了)， 所以安装库时要用对应的pip3,而不是pip
+```
+
 
 
 
