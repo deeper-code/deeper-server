@@ -106,7 +106,6 @@ IP地址是向学校申请的固定IP地址，如表1-3所示，校内任何地�
 本章内容包括：
 
 - 如何安装cuda、cudnn、tensorflow-gpu等深度学习框架，以及其配置过程
-- 常用软件安装配置
 - 固定IP配置
 - 远程桌面配置<需配合第三章 Linux运维，可先阅读第三章>
 
@@ -546,9 +545,140 @@ user$ sudo pip3 install keras==2.2.0
 
 
 
+### 2.2 固定IP配置
+
+  本节将介绍申请固定IP的过程，和如何给服务器配置固定IP地址。
+
+#### 2.2.1 校园网的组成
 
 
 
+![ip_1](images/ip_1.png)
+
+无论你在校园内的任何地方，只要使用校园网那么最终都会通过学校的总路由、网关而访问英特网，所以无论你在学校的何处只要你有一根网线能够连接到校园网（可以不登录），或者使用无线网连接到校园网，都可以访问学校内的公开IP地址（相当于外网）。
+
+#### 2.2.2 CBIB实验室局域网组成
+
+![ip_2](images/ip_2.png)
+
+而我们实验室的网络步骤也是一个局域网，所以你可以在不连接校园网的情况下访问服务器，下面我们分情况讨论为什么一定要给服务器配置校内固定IP。
+
+- **服务器不连接校园网，固定IP地址**
+
+  上面我们说了，因为实验室内所有机器都在一个局域网内，所以就算服务器不连接校园网，只要将网线连接至CBIB的交换机上，我们就可以在局域网内访问服务器了，但是问题在于我们的服务器是不能访问外网的，那么我们想更新软件，下载安装包都无法实现，只能使用自己的电脑下载好安装包，然后上传至服务器安装相当的麻烦。
+
+- **服务器登录校园网账号**
+
+  另一种方式就是给服务器登录校园网账号，这样服务器便可以访问外网了，解决了上述的问题，但是使用校园网账号登录时其IP地址是不固定的，我们每次登录服务器都要先查看其IP地址，因此此方法也不可行。
+
+- **服务器使用校内固定IP，免登录**
+
+  最终的解决方案就是向学校校园网中心申请固定IP。首先固定IP地址是不需要登录的，可以直接访问外网，其次其IP地址不会发生变化。具体申请固定IP的流程可请教@金老师或者@马老师。申请固定IP需要向校园网中心提供机器的MAC地址，校园网中心会下发一个全校可访问的公共IP地址与我们提交的MAC地址绑定，然后我们的服务器就可以免费上网了。
+
+  **如何查看MAC地址**
+
+  ``` shell
+  user$ ifconfig
+  
+  eth0      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx  
+            UP BROADCAST MULTICAST  MTU:1500  Metric:1
+            RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+            TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+            collisions:0 txqueuelen:1000 
+            RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+            Memory:fb300000-fb37ffff 
+  
+  eth1      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx  
+            inet addr:xxx.xxx.xxx.xxx  Bcast:xxx.xxx.xxx.xxx  Mask:255.255.252.0
+            inet6 addr: fe80::ae1f:6bff:fe14:4a4f/64 Scope:Link
+            inet6 addr: 2001:250:4000:8240:ae1f:6bff:fe14:4a4f/64 Scope:Global
+            UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+            RX packets:117381703 errors:0 dropped:0 overruns:0 frame:0
+            TX packets:449580661 errors:0 dropped:0 overruns:0 carrier:0
+            collisions:0 txqueuelen:1000 
+            RX bytes:62143220880 (62.1 GB)  TX bytes:645669845490 (645.6 GB)
+            Memory:fb200000-fb27ffff 
+  
+  lo        Link encap:Local Loopback  
+            inet addr:127.0.0.1  Mask:255.0.0.0
+            inet6 addr: ::1/128 Scope:Host
+            UP LOOPBACK RUNNING  MTU:65536  Metric:1
+            RX packets:2271267728 errors:0 dropped:0 overruns:0 frame:0
+            TX packets:2271267728 errors:0 dropped:0 overruns:0 carrier:0
+            collisions:0 txqueuelen:1 
+            RX bytes:6361168372943 (6.3 TB)  TX bytes:6361168372943 (6.3 TB)
+            
+  # 其中 eth0表示服务器的第一块网卡， eth1同理， lo表示本地回环地址
+  # 一般我们只使用一块网卡即可，在服务器2中我们使用的是eth1
+  # 其中：
+  #    HWaddr(hardwarw address) 就是该网卡的MAC地址
+  #    inet addr ： 表示该网卡的ip地址
+  #    其他
+  ```
+
+  申请单下发后大致是这个样子：
+
+  ![ip_3](images/ip_3.png)
+
+#### 2.2.3 固定IP的配置
+
+我们从申请单可以得到
+
+``` shell
+MAC地址： MAC:MAC:MAC:MAC:MAC:MAC
+IP地址 ： ip.ip.ip.ip
+子网掩码： 255.255.252.0
+网关   ： way.way.way.way
+DNS   ： DNS1.DNS1.DNS1.DNS1, DNS2.DNS2.DNS2.DNS2
+
+# 请注意在你申请IP时提交的MAC 地址是哪一张网卡的，接下来的配置就要在哪一张网卡上进行。MAC地址不匹配
+# 是不能上网的。
+```
+
+**a) 修改 /etc/network/interface**
+
+``` shell
+user$ sudo vim /etc/network/interface
+
+# ------ 以下为示例内容 --------
+# The loopback network interface
+auto lo    ---> 这是本地回环的配置，我们不需用管
+iface lo inet loopback
+
+# The primary network interface
+auto eth1  # ---> 先让个自动获取IP，激活网卡
+iface eth1 inet static  # ---> IPv4 设置为固定IP模式
+address ip.ip.ip.ip     # ---> 固定IP
+netmask 255.255.252.0   # ---> 子网掩码
+gateway way.way.way.way # ---> 网关
+
+# 保存退出
+```
+
+**b) 修改 /etc/resolvconf/resolv.conf.d/base**
+
+这一步的目的是配置DNS
+
+``` shell
+user$ sudo vim /etc/resolvconf/resolv.conf.d/base
+
+# ------ 以下为示例内容 --------
+nameserver DNS1.DNS1.DNS1.DNS1
+nameserver DNS2.DNS2.DNS2.DNS2
+
+# 保存退出
+```
+
+**c) 刷新配置， 重新网卡**
+
+``` shell
+user$ sudo resolvconf -u  # ---> 刷新网络配置
+user$ sudo /etc/init.d/networking restart  # ---> 重启网络服务
+```
+
+然后终端检查IP地址是否设置正确，是否可以访问外网，实验室内个人PC是否可以访问服务器。
+
+如果重启网络服务不能生效的话可以试一试重启服务器。
 
 ---
 
