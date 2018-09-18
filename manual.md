@@ -128,7 +128,7 @@ IP地址是向学校申请的固定IP地址，如表1-3所示，校内任何地�
 
 #### 2.1.2 Linux加载库过程简介
 
-​        本节，我将通过类比windows应用程序来解释Linux系统是如果启动应用程序，如何加载动态链接库的。假设我们在windows上安装一个QQ软件，其步骤如下：
+        本节，我将通过类比windows应用程序来解释Linux系统是如果启动应用程序，如何加载动态链接库的。假设我们在windows上安装一个QQ软件，其步骤如下：
 
 - 下载QQ安装包，一般为`.exe`
 - 安装
@@ -277,9 +277,258 @@ never fight alone    --> 可以看到已经设置成功
 
 
 
-#### 2.1.4 CUDA、cudnn安装配置
+#### 2.1.4 Driver、CUDA、cudnn下载
+
+**Note：**在安装CUDA、cudnn之前要先确认操作系统版本、将要安装的tensorflow版本或者其他深度学习框架的版本。这里离tensorflow为例。
+
+我们可以先去`github`上查看想要安装的tensorflow版本所需要的cudn版本,或者google。这里假设我们要安装的tensorflow版本为`1.9.0`，其需要的cuda版本为`cuda9.0`以上，keras对应的版本为`2.1.6`,同时cuda9.0对应的cudnn版本为`8.0`,除此之外还有GPU驱动驱动程序的版本假设为`384.69`
+
+驱动程序、cuda、cudnn均从NVIDIA官网下载： https://www.nvidia.com/zh-cn/
+
+**a) 下载驱动程序**
+
+- 前往NVIDIA官网，找到驱动程序->所有驱动程序
+
+  ![driver](images/nvidia_driver_1.png)
+
+- 根据我们的GPU硬件选择相应的版本，点击搜索（最好选择英文版，一劳永逸）
+
+  ![search](images/nvidia_driver_2.png)
+
+- 点击下载即可，然后上传到服务器，建议将历史版本的下载包存储下来以备用。也可以直接在服务器上下载。
+
+  ![download](images/nvidia_driver_3.png)
+
+- 然后我们就得到了名称为`NVIDIA-Linux-x1080ti-384.69.run`
+
+  假设我将此文件存放在`/home/user/Download/NVIDIA-Linux-x1080ti-384.69.run`下
+
+**b) 下载CUDA**
+
+- 同样的，我们在首页找到：开发者->CUDA
+
+  ![cuda](images/nvidia-cuda-1.png)
+
+- 进入页面后，点击`Download Now`,然后根据机器配置勾选相应选项，最好下载`.run`文件。这个页面默认是下载最新版本的CUDA，如果需要旧版本自行查找，方法类似。
+
+  ![download](images/nvidia-cuda-2.png)
+
+- 最终我们会得到一个`cuda_9.3.148_396.37_linux.run`的文件，同样的上传至服务器，建议备份。
+
+  假设我存放在了`/home/user/Download/cuda_9.3.148_396.37_linux.run`
+
+**c) 下载cudnn** https://developer.nvidia.com/cuDNN
+
+- 下载cuDNN需要登录，所以你要现在NVIDIA官网上注册。这里就略过了，下载方法与上面类似。
+
+  ![downlaod](images/nvidia-cuda-3.png)
+
+- 最终我们可以得到一个`cudnn-8.0-linux-x64-xxx.tgz`
+
+  假设我存在：`/home/user/Download/cudnn-8.0-linux-x64-xxx.tgz`
 
 
+
+#### 2.1.5 Driver、CUDA、cudnn安装
+
+上述三个安装包下载完成后，我们就有了：
+
+``` shell 
+/home/user/Download/NVIDIA-Linux-x1080ti-384.69.run   --> NVIDIA显卡驱动程序
+/home/user/Download/cuda_9.3.148_396.37_linux.run     --> CUDA
+/home/user/Download/cudnn-8.0-linux-x64-xxx.tgz       --> cdDNN
+```
+
+**a) 安装驱动程序**
+
+GPU也就是我们所说的显卡，它有可能已经应用在我们服务器配置的显示器上了，而出厂默认安装的是用于高性能显示的驱动程序,或者老旧的驱动程序，所以我们要先做一下清理工作。
+
+- 卸载原来的驱动程序
+
+  `sudo apt-get remove -purge nvidia*`
+
+- 禁用`nouveau`
+
+  `sudo vim /etc/modprobe.d/blacklist-nouveau.conf`
+
+  输入以下内容并保存，即可将nouveau添加到黑名单，该驱动程序将不会再被加载。
+
+  ``` shell 
+  blacklist nouveau
+  options nouveau modeset=0
+  ```
+
+- 刷新
+
+  `sudo update-initramfs -u`
+
+  然后**重启系统**
+
+- 重启后，检查是否禁用nouveau成功
+
+  `lsmod | grep nouveau` ， 如果没有输出内容则表示禁用成功。
+
+- 切换到命令行界面
+
+  因为我们要重新安装GPU驱动，所以图形界面需要暂时关闭。
+
+  ``` shell
+  # 切换到终端界面
+  Ctrl + Alt + F1  (Ctrl + Atl + Fx 表示切换到x终端，其中F7表示图像界面)
+  # 关闭图形界面
+  user$ sudo service lightdm stop
+  ```
+
+- 开始安装NVIDIA显卡驱动(runfile)
+
+  ``` shell
+  # 进入驱动程序对应的目录
+  user$ cd /home/user/Download/
+  # 增加可执行权限
+  user$ sudo chmod +x NVIDIA-Linux-x1080ti-384.69.run
+  # 执行.run，开始安装
+  user$ sudo ./NVIDIA-Linux-x1080ti-384.69.run –no-x-check –no-nouveau-check –no-opengl-files
+  # –no-opengl-files 只安装驱动文件，不安装 OpenGL 文件。这个参数最重要
+  # –no-x-check 安装驱动时不检查 X 服务
+  # –no-nouveau-check 安装驱动时不检查 nouveau
+  ```
+
+- 启动图像界面
+
+  ``` shell
+  # 启动图像界面
+  sudo service lightdm start
+  # 切换到图像界面
+  Ctrl + Atl + F7
+  ```
+
+- 检查驱动程序是否安装成功
+
+  ``` shell
+  user$ nvidia-smi
+  ```
+
+  如果安装成功，会出现 类似如下的界面,可以看到驱动版本为 `384.69`：
+
+  ![nvidia-driver](images/nvidia-driver_1.png)
+
+**b)  安装 CUDA**
+
+和安装驱动程序类似，我们的CUDA库选择的也是run文件形式来安装，CUDA不需用关闭图形界面，所以可以直接在终端里执行安装。
+
+``` shell
+# 增加可执行权限
+user$ sudo chmod +x cuda_9.3.148_396.37_linux.run
+# 开始安装
+user$ ./cuda_9.3.148_396.37_linux.run
+
+# Description
+# 
+# This package includes over 100+ CUDA examples that demonstrate
+# various CUDA programming principles, and efficient CUDA
+# implementation of algorithms in specific application domains.
+# The NVIDIA CUDA Samples License Agreement is available in
+# Do you accept the previously read EULA?
+# accept/decline/quit: accept
+# 
+# Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 367.48?
+# (y)es/(n)o/(q)uit: n  ---> 是否安装驱动程序？ 我们安装过了，所以选择 no
+# 
+# Install the CUDA 9.0 Toolkit?
+# (y)es/(n)o/(q)uit: y  ---> 是否安装CUDA 工具箱， 选择 yes
+# 
+# Enter Toolkit Location
+#  [ default is /usr/local/cuda-9.0 ]: ---> 安装位置，默认即可
+# 
+# Do you want to install a symbolic link at /usr/local/cuda?
+# (y)es/(n)o/(q)uit: y  ---> 是否安装动态链接文件，选择yes
+# 
+# Install the CUDA 9.0 Samples?
+# (y)es/(n)o/(q)uit: y   ---> cuda自带了一些示例程序，我们选择 yes。之后可以做一些验证工作。
+# 
+# Enter CUDA Samples Location
+#  [ default is /xxxx ]:  ---> 示例程序的安装位置， 默认即可
+# 
+# Installing the CUDA Toolkit in /usr/local/cuda-9.0 ...
+# Installing the CUDA Samples in /xxx ...
+# Copying samples to /xxxx now...
+# Finished copying samples.
+```
+
+至此，run文件已经将我们需要的CUDA动态链接库安装到了`/usr/local/cuda-9.0/（默认）`下面。相信你还记得我们在上一节中讲到的，Linux系统需要我们设定环境变量才能让其他应用程序能够找到我们安装的动态链接库，所以下来我们要设置环境变量。
+
+如果你是管理员，请为所有人设置环境变量（`/etc/profile`），如果你是普通用户安装了自己需要的定制版CUDA那么请设置(`~/.bashrc`),这里我们给出`/etc/profile`的设置示例，具体原理不再赘述，参考2.1.3小节：
+
+``` shell
+# Add CUDA-9.0 Library.  modify by codewang @2019.9.16
+export PATH=/usr/local/cuda-9.0/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
+```
+
+**c) 安装cudnn加速库**
+
+因为cudnn是用来做动态加速运算的库，但是并不是所有NVIDIA显卡用户都要用到此部分功能，所以NVIDIA讲此部分库从CUDA中独立出来，形成了现在的cudnn，因此与其说是安装cudnn库，不如说是给CUDA打补丁，所以可以看到我们下载的cudnn库时压碎文件，并不需要安装。我们只需用将其解压，将对应问价拷贝至CUDA安装目录下即可。
+
+``` shell
+# 解压 cudnn 
+user$ tar -xvzf cudnn-8.0-linux-x64-xxx.tgz  --> 假设解压得到 cuda 目录
+# 拷贝动态链接库到CUDA安装目录下
+user$ sudo cp ./cuda/lib64/libcudnn* /usr/lcoal/cuda-9.0/lib64/
+# 拷贝头文件到CUDA安装目录下
+user$ sudo cp ./cuda/inlcude/cudnn.h /usr/local/cuda-9.0/include/
+# 因为是刚解压出来的文件，其权限是不确定的，为了以防万一，我们手动为其增加可读权限
+user$ sudo chmod a+r /usr/lcoal/cuda-9.0/lib64/libcudnn*
+user$ sudo chmod a+r /usr/local/cuda-9.0/include/cudnn.h
+```
+
+**d) 验证**
+
+这里我们可以验证前面三个库的安装是否正确，利用上面提到的CUDA的示例程序。路径为`/usr/local/cuda-9.0/samples/1_Utilities/deviceQuery`
+
+``` shell
+# 进入示例程序目录
+user$ cd /usr/local/cuda-8.0/samples/1_Utilities/deviceQuery
+# 编译示例程序
+user$ sudo make   --> 我们可以看到生成了 deviceQuery 的可执行程序
+# 运行观察结果
+user$ ./deviceQuery
+#
+#  ----------- 只作为示例，仅供参考 -----------
+#
+# CUDA Device Query (Runtime API) version (CUDART static linking)
+# Detected 10 CUDA Capable device(s)
+# Device 0: "GeForce GTX 1080 Ti"
+# CUDA Driver Version / Runtime Version           9.0 / 9.0
+#  CUDA Capability Major/Minor version number:    6.1
+#  Total amount of global memory:                 11172 MBytes (11715084288 bytes)
+#  (28) Multiprocessors, (128) CUDA Cores/MP:     3584 CUDA Cores
+#  GPU Max Clock rate:                            1582 MHz (1.58 GHz)
+#  Memory Clock rate:                             5505 Mhz
+#  Memory Bus Width:                              352-bit
+#  L2 Cache Size:                                 2883584 bytes
+#  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+#  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+#  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+#  Total amount of constant memory:               65536 bytes
+#  Total amount of shared memory per block:       49152 bytes
+#  Total number of registers available per block: 65536
+#  Warp size:                                     32
+#
+#   ...
+#   ...
+#
+# deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 9.0, 
+# CUDA Runtime Version = 9.0, NumDevs = 10, Device0 = GeForce GTX 1080 Ti, Device1 = 
+# GeForce GTX 1080 Ti, Device2 = GeForce GTX 1080 Ti, Device3 = GeForce GTX 1080 Ti, 
+# Device4 = GeForce GTX 1080 Ti, Device5 = GeForce GTX 1080 Ti, Device6 = GeForce GTX
+# 1080 Ti, Device7 = GeForce GTX 1080 Ti, Device8 = GeForce GTX 1080 Ti, Device9 = 
+# GeForce GTX 1080 Ti
+# Result = PASS    ---> 表示安装正确
+```
+
+
+
+#### 2.1.6 Tensorflow/Keras的安装
 
 
 
