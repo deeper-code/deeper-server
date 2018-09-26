@@ -1,2 +1,2 @@
-# CBIB_Server_Manual
-manual of ubuntu server
+# deeper-server
+Ubuntu-Server of CBIB.HUST manual
