@@ -2,7 +2,7 @@ import sys
 import os
 #import argparse
 from tools import remote
-
+from actions import check
 
 class Action(object):
 	'''Class for register action to special argument.'''
@@ -26,7 +26,7 @@ class Action(object):
 
 def regest_actions():
 	actions = Action(name='cbib')
-	#actions.register('check', )
+	actions.register('check',  check.check_request)
 	return actions
 
 def main():

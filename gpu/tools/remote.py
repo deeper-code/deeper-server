@@ -31,8 +31,8 @@ class Remote(object):
 """ Communication Inter Process with pipe"""
 class PipeRemote(Remote):
 	def __init__(self, itype):
+		super(PipeRemote, self).__init__(itype)
 		self.name = 'pipe'
-		self.itype = itype
 		self.prepare()
 
 
