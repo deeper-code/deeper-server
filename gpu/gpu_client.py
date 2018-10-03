@@ -54,7 +54,7 @@ def main():
 	pipe = remote.PipeRemote(itype='client')
 
 	#print()
-	pipe.send(b"hello")
+	pipe.send("check")
 	print(pipe.accept())
 	#print(args)
 

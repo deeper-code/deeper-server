@@ -4,6 +4,7 @@ import os
 import sys
 sys.path.append('..')
 
+import pandas as pd
 from gpu import config
 
 class DataBase(object):
@@ -44,7 +45,7 @@ class GpuData(DataBase):
 		super(GpuData, self).__init__(file, reset)
 
 		self.name = 'gpu database'
-		if not os.exists(file) and reset == False:
+		if not os.path.exists(file) and reset == False:
 			raise ValueError('Database file %s not exists.' % file)
 
 		self.file = file
@@ -59,7 +60,7 @@ class GpuData(DataBase):
 		self.columns = ['nr', 'status', 'onwer', 'start', 'end', 'why']
 
 		if not reset:
-			self.df =  pandas.read_csv(file)
+			self.df =  pd.read_csv(file)
 		else:
 			self.reset()
 
@@ -78,31 +79,54 @@ class GpuData(DataBase):
 		self.local()
 
 
-class UserData(DataBase):
+class RequestData(DataBase):
 	def __init__(self, file, reset=False):
+
+		super(RequestData, self).__init__(file, reset)
 		self.name = 'user information database'
 		self.file = file
-		if not os.exists(file) and reset == False:
+		if not os.path.exists(file) and reset == False:
 			raise ValueError('Database file %s not exists.' % file)
 
 
-		self.columns = ['uid', 'gid', 'uuid', 'name']
-
-
+		# rid : request id
+		# uid  user id
+		# uuid user name simply
+		# name user name
+		# start : when this user request gpu
+		# using : when this user start to using gpu
+		# release  : when the processes are  stoped
+		# end : when this user push back those gpus.
+		# group_id : id of request.
+		# finish : pass
+		self.columns = ['rid','uid', 'uuid', 'name', 'start', 'end', 'gpu_list', 'group_id', 'finish']
 		if not reset:
-			self.df =  pandas.read_csv(file)
+			self.df =  pd.read_csv(file)
 		else:
 			self.reset()
+
+
+	def slice(self, limits):
+		_lmt = True
+		for k,v in limits.items():
+			_lmt = _lmt &  (self.df[k] == v)
+		return self.df[_lmt]
 
 	def reset(self):
 		if os.path.exists(self.file):
 			os.remove(self.file)
 		self.df = pd.DataFrame(columns=self.columns)
-		# get all user information.
-		
-
-
+		pass
 		self.local()
+
+
+
+
+
+
+
+
+
 
 
 

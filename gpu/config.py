@@ -9,4 +9,5 @@ FIFO_IN  =  '/Volumes/work/remote/deeper-server/gpu/fifo.in'  #'/home/admin/.fif
 FIFO_OUT =  '/Volumes/work/remote/deeper-server/gpu/fifo.out' #'/home/admin/.fifo/fifo.out' 
 
 # database
-GPU_DATA = '/Volumes/work/remote/deeper-server/gpu/database.csv'
+GPU_DATA = '/Volumes/work/remote/deeper-server/gpu/gpu-database.csv'
+REQUEST_DATA = '/Volumes/work/remote/deeper-server/gpu/request-database.csv'

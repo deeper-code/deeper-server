@@ -58,11 +58,11 @@ class PipeRemote(Remote):
 			self.wf = os.open(config.FIFO_IN, os.O_SYNC | os.O_CREAT | os.O_RDWR)
 
 	def send(self, msg):
-		os.write(self.wf, msg)
+		os.write(self.wf, msg.encode())
 
 
 	def accept(self):
-		return os.read(self.rf, 2048)
+		return os.read(self.rf, 2048).decode()
 
 	def clear(self):
 		os.close(self.rf)

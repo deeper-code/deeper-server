@@ -3,6 +3,9 @@ import os
 #import argparse
 from tools import remote
 from actions import check
+from tools import GpuData, RequestData
+import config
+
 
 class Action(object):
 	'''Class for register action to special argument.'''
@@ -10,7 +13,7 @@ class Action(object):
 		self.name = name
 		self.args = {}
 
-	def register(cmd, action):
+	def register(self, cmd, action):
 		if self.args.get(cmd, 'None') != 'None':
 			raise ValueError('Command %s is already exists.' % cmd)
 		if not callable(action):
@@ -18,7 +21,7 @@ class Action(object):
 
 		self.args[cmd] = action
 
-	def call(cmd, *args, **kwargs):
+	def call(self, cmd, *args, **kwargs):
 		return self.args[cmd](*args, **kwargs)
 
 
@@ -32,11 +35,24 @@ def regest_actions():
 def main():
 	
 	pipe = remote.PipeRemote(itype='server')
+	actions = regest_actions()
 
-	print(pipe.accept())
+	requests = RequestData(config.REQUEST_DATA, reset=True) 
+
+
+
+	cmd = pipe.accept()
+	print(cmd)
+	if cmd == 'check':
+		print('True')
+		pipe.send(actions.call('check', uid=1001))
 	#print(args)
-	pipe.send(b'i\'m server')
-	pipe.clear()
+	#pipe.send(b'i\'m server')
+	#pipe.clear()
 
 if __name__ == '__main__':
 	main()
+
+
+
+

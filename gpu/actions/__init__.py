@@ -1,2 +1,2 @@
 
-from check import *
+from .check import *
