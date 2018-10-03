@@ -43,8 +43,8 @@ class PipeRemote(Remote):
 			if os.path.exists(config.FIFO_OUT):
 				os.remove(config.FIFO_OUT)
 
-			os.mkfifo(config.FIFO_IN)
-			os.mkfifo(config.FIFO_OUT)
+			os.mkfifo(config.FIFO_IN,  0o644)
+			os.mkfifo(config.FIFO_OUT, 0o644)
 
 			self.rf = os.open(config.FIFO_IN, os.O_RDONLY)
 			self.wf = os.open(config.FIFO_OUT, os.O_SYNC | os.O_CREAT | os.O_RDWR)
