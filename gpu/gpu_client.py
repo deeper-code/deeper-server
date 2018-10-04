@@ -27,6 +27,7 @@ class Action(object):
 def parse_parames():
 	parse = argparse.ArgumentParser()
 	request_group = parse.add_mutually_exclusive_group()
+	parse.add_argument('-l', '--list',   action='store_true', help='查询GPU状态')
 	parse.add_argument('-c', '--check',   action='store_true', help='查询已申请GPU资源')
 	parse.add_argument('-v', '--version', action='store_true', help='查询当前版本号')
 	request_group.add_argument('-g', '--get', type=int, help='申请指定编号GPU,例如: gpu -g 1 5 6', 
@@ -49,15 +50,23 @@ def regest_actions():
 	return actions
 
 def main():
-	
+	# parsing arguments from console.
 	args = parse_parames()
+
+	# to create remote-handel <using pipe> 
 	pipe = remote.PipeRemote(itype='client')
 
-	#print()
-	pipe.send("check")
+	# test to request gpu-1 gpu-2 gpu-8 
+	pipe.send("1001|get|1|2|8")
 	print(pipe.accept())
-	#print(args)
 
+
+	# test check my requestions.
+	pipe.send("1001|check|none")
+	print(pipe.accept())
+	
+	# clear 
+	pipe.clear()
 
 if __name__ == '__main__':
 	main()

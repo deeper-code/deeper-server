@@ -4,10 +4,15 @@ import os
 import sys
 sys.path.append('..')
 
+from subprocess import getstatusoutput
+
 import pandas as pd
 from gpu import config
 
 class DataBase(object):
+	""" An abstract class for datasets.
+	"""
+
 	def __init__(self, file, reset=False):
 		self.name = 'None'
 		self.file = file
@@ -37,6 +42,99 @@ class DataBase(object):
 			cls._instance = super().__new__(cls)
 		return cls._instance
 
+
+class _GpuCore(object):
+	""" GPU information for each GPU.
+	include gpu memary in using/free/total
+	and each process on this gpu
+	"""
+	def __init__(self, nr=-1):
+		self.nr = nr
+		# procs --> precesses
+		# for each processing:
+		# pid  : this processing pid
+		# name : command line
+		# gpu_mem :
+		self.procs = []
+		self.total = 0 
+		self.used  = 0
+		self.free  = 0
+
+
+	def data(self):
+		total = int(self.total.split()[0].strip())
+		used  = int(self.used.split()[0].strip())
+		free  = int(self.free.split()[0].strip())
+
+		processes = [[x['pid'], x['name'], 
+					  int(x['gpu_mem'].split()[0].strip())  ]  for x in self.procs]
+
+		return total, used, free, processes
+
+	def updata(self):
+		''' console command : sudo nvidia-smi -q -i 5 -d PIDS,MEMORY
+			output:
+			GPU 00000000:0B:00.0
+			    FB Memory Usage
+			        Total                       : 11172 MiB
+			        Used                        : 10795 MiB
+			        Free                        : 377 MiB
+			    Processes
+			        Process ID                  : 44070
+			            Type                    : C
+			            Name                    : /home/ljg/anaconda3/envs/tensorflow/bin/python
+			            Used GPU Memory         : 10785 MiB
+
+		'''
+		stat, output = getstatusoutput('nvidia-smi -q -i %d -d PIDS,MEMORY' % self.nr)
+		if stat == 0:
+			output = [x.strip() for x in  output.strip().split('/n')]
+			mem_inx  = output.index('FB Memory Usage')
+			# memeary
+			self.total = output[mem_inx+1].split(':')[-1].strip()  # 11172 MiB
+			self.used  = output[mem_inx+2].split(':')[-1].strip()
+			self.free  = output[mem_inx+3].split(':')[-1].strip()
+
+			# processes
+			try:
+				proc_inx = output.index('Processes')
+				for inx in range(proc_inx+1, len(output), 4):
+					# find a process
+					if output[inx].split(':')[0].strip() == 'Process ID':
+						P = {}
+						P['pid']     = int(output[inx].split(':')[1].strip())
+						P['name']    = output[inx+2].split(':')[1].strip()
+						P['gpu_mem'] = output[inx+3].split(':')[1].strip()
+						self.procs.append(P)
+			except:
+				# No processes
+				pass
+
+			# updata GpuData
+			pass
+
+
+
+
+
+class GPUs(Database):
+	""" runtime GPU status.
+	"""
+	def __init__(self):
+		super(GPUs, self).__init__(None, reset=False)
+		
+		self._gpus = []
+		for i in range(config.NR_GPU):
+			gpu = _GpuCore(nr=i)
+			gpu.update()
+			self._gpus.append(gpu)
+
+	def __getitem__(self, inx):
+		return self._gpus[inx]
+
+	def updata(self):
+		for i in range(config.NR_GPU):
+			self._gpus[i].update()
 
 
 

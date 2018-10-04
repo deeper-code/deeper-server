@@ -7,6 +7,16 @@ from tools import GpuData, RequestData
 import config
 
 
+
+# method :
+# 客户端发来 uid|cmd|args
+# 所以每个功能函数需要接受至少参数
+# function(uid, arg1, ...)
+# 或者
+# function(uid, *args)
+# 
+# 返回值必须是字符串
+
 class Action(object):
 	'''Class for register action to special argument.'''
 	def __init__(self, name='None'):
@@ -22,9 +32,17 @@ class Action(object):
 		self.args[cmd] = action
 
 	def call(self, cmd, *args, **kwargs):
-		return self.args[cmd](*args, **kwargs)
+		try:
+			return self.args[cmd](*args, **kwargs)
+		except:
+			return 'exception'
 
 
+	def __getitem__(self, cmd):
+		if cmd in self.args.keys():
+			return self.args[cmd]
+		else:
+			raise ValueError('command %s not register.' % cmd)
 
 
 def regest_actions():
@@ -32,23 +50,24 @@ def regest_actions():
 	actions.register('check',  check.check_request)
 	return actions
 
+
 def main():
-	
+	# to created remote-handel <using pipe>
 	pipe = remote.PipeRemote(itype='server')
+
+	# regeste all actions
 	actions = regest_actions()
 
-	requests = RequestData(config.REQUEST_DATA, reset=True) 
+	# accept commands from client.
+	while True:
+		buf = pipe.accept()
+		# parse command <format : uid|command|args>
+		uid, cmd, args = buf.split('|')
 
-
-
-	cmd = pipe.accept()
-	print(cmd)
-	if cmd == 'check':
-		print('True')
-		pipe.send(actions.call('check', uid=1001))
-	#print(args)
-	#pipe.send(b'i\'m server')
-	#pipe.clear()
+		# call 
+		replay = actions.call(cmd, uid, *args)
+		# send replay
+		pipe.send(replay)
 
 if __name__ == '__main__':
 	main()
