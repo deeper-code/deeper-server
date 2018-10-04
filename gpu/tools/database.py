@@ -26,7 +26,7 @@ class DataBase(object):
 	def local(self):
 		self.df.to_csv(self.file, index=None, header=True)
 
-
+    
 	def __getitem__(self, index):
 		return self.df.iloc[index].values
 
