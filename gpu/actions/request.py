@@ -27,6 +27,10 @@ def get_lock(uid):
 	# 2. It's time to push back his(her) GPUs, but he(she) didn't.
 	# 3. In blacklist 
 
+	# 1.  1 3 5   request 
+	# 2.  2 4 6   using 
+	#       
+
 	for l in live.index:
 		gpu_list = live['gpu_list'].loc[l].split()
 		for nr in gpu_list:
@@ -36,16 +40,26 @@ def get_lock(uid):
 				return False, 'The GPU-%d you requested is not used, so you can not continue to request another gpus.' % nr
 	return True,''
 
-			
+
+def request_gpu_list(uid, gpu_list): 
+	''' Request GPUs in gpu_list and had already checked.
+	Tasks:
+		1. take a record to database.
+		2. add this user to user group that those gpus in.
+		TODO: 3. take a record to log file.
+	'''
+	requests = RequestData(config.REQUEST_DATA)
+	
+
+
+# user : gpu -get 1 5 7
+# client :  1001|get|1|5|7
+# server :  gpu_get(1001, [1,5,7])
 
 def gpu_get(uid, gpu_list):
 	# check usre infomation.
 	requests = RequestData(config.REQUEST_DATA) 
 	gpudata  = GpuData(config.GPU_DATA)
-
-	live = requests.slice({
-			'finish' : False,
-			'uid':uid})
 
 	lock, ret = get_lock(uid)
 	if not lock:
@@ -65,7 +79,7 @@ def gpu_get(uid, gpu_list):
 		if gpudata.df['status'].iloc[inx] != 'free':
 			return 'GPU-%d you requested is not free. using gpu -l to have a checking.' % inx
 
-
+	# request GPUs
 
 
 

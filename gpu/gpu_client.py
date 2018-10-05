@@ -44,9 +44,12 @@ def parse_parames():
 
 
 
+
+
 def regest_actions():
 	actions = Action(name='cbib')
 	#actions.register('check', )
+	actions.register('get', xxx)
 	return actions
 
 def main():

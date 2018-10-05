@@ -2,7 +2,7 @@ import sys
 import os
 #import argparse
 from tools import remote
-from actions import check
+from actions import check, request
 from tools import GpuData, RequestData
 import config
 
@@ -33,7 +33,7 @@ class Action(object):
 
 	def call(self, cmd, *args, **kwargs):
 		try:
-			return self.args[cmd](*args, **kwargs)
+			return self.args[cmd](*args, **kwargs)  
 		except:
 			return 'exception'
 
@@ -48,6 +48,7 @@ class Action(object):
 def regest_actions():
 	actions = Action(name='cbib')
 	actions.register('check',  check.check_request)
+	actions.register('get', request.gpu_get)
 	return actions
 
 
@@ -60,7 +61,7 @@ def main():
 
 	# accept commands from client.
 	while True:
-		buf = pipe.accept()
+		buf = pipe.accept()  # "1001|check"
 		# parse command <format : uid|command|args>
 		uid, cmd, args = buf.split('|')
 

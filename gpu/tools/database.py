@@ -115,8 +115,6 @@ class _GpuCore(object):
 
 
 
-
-
 class GPUs(Database):
 	""" runtime GPU status.
 	"""
