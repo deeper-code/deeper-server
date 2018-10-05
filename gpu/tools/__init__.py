@@ -25,6 +25,7 @@ from .remote import PipeRemote
 #  using : when this user start to using gpu
 #  release  : when the processes are  stoped
 #  end : when this user push back those gpus.
+#  gpu_list
 #  group_id : id of request.
 #  finish : pass
 

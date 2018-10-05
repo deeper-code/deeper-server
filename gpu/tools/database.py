@@ -79,7 +79,7 @@ class _GpuCore(object):
 			        Total                       : 11172 MiB
 			        Used                        : 10795 MiB
 			        Free                        : 377 MiB
-			    Processes
+			    Processes                       
 			        Process ID                  : 44070
 			            Type                    : C
 			            Name                    : /home/ljg/anaconda3/envs/tensorflow/bin/python
@@ -194,6 +194,7 @@ class RequestData(DataBase):
 		# release  : when the processes are  stoped
 		# end : when this user push back those gpus.
 		# group_id : id of request.
+		# gpu_list : pass
 		# finish : pass
 		self.columns = ['rid','uid', 'uuid', 'name', 'start', 'end', 'gpu_list', 'group_id', 'finish']
 		if not reset:
@@ -214,9 +215,6 @@ class RequestData(DataBase):
 		self.df = pd.DataFrame(columns=self.columns)
 		pass
 		self.local()
-
-
-
 
 
 

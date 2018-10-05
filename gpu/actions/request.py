@@ -5,7 +5,7 @@ sys.path.append('..')
 
 import config
 from tools import GpuData, RequestData, GPUs
-
+import time
 
 
 def get_lock(uid):
@@ -49,7 +49,42 @@ def request_gpu_list(uid, gpu_list):
 		TODO: 3. take a record to log file.
 	'''
 	requests = RequestData(config.REQUEST_DATA)
-	
+	gpudata  = GpuData(config.GPU_DATA)
+
+	# 1. requests
+	#uuid, name = get_uuid(uid)
+	live = requests.slice({
+				'finish' : False,
+				'uid':uid})
+
+	requests.df.append({
+			'rid'   : requests.df.shape[0] + 1,
+			'uid'   : uid,
+			'uuid'  : uuid,
+			'name'  : name,
+			'start'    : time.time(),
+			'using'    : None,
+			'end'      : None,
+			'release'  : None,
+			'gpu_list' : ' '.join([str(x) for x in gpu_list])   
+			'group_id' : live.shape[0],
+			'finish'   : False
+		})
+
+
+	for nr in gpu_list:
+		# update database.
+		#gpudata.df.iloc[nr] 
+		gpudata.df['status'].iloc[nr] = requested
+		gpudata.df['onwer'].iloc[nr]  = uid
+		gpudata.df['start'].iloc[nr]  = time.time()
+		gpudata.df['end'].iloc[nr]    = time.time() + 3600.0
+		gpudata.df['why'].iloc[nr]    = 'requested'
+
+		# 
+		# 添加此用户到对应的GPU分组中。
+
+
 
 
 # user : gpu -get 1 5 7
@@ -58,7 +93,6 @@ def request_gpu_list(uid, gpu_list):
 
 def gpu_get(uid, gpu_list):
 	# check usre infomation.
-	requests = RequestData(config.REQUEST_DATA) 
 	gpudata  = GpuData(config.GPU_DATA)
 
 	lock, ret = get_lock(uid)
@@ -80,7 +114,7 @@ def gpu_get(uid, gpu_list):
 			return 'GPU-%d you requested is not free. using gpu -l to have a checking.' % inx
 
 	# request GPUs
-
+	request_gpu_list(uid, _list)
 
 
 

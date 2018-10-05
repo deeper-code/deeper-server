@@ -858,9 +858,6 @@ drwxrwxr-x  -->
     
 
 
-
-
-
 ```
 
 
@@ -1203,12 +1200,90 @@ codewang$ logout
 > ssh admin@xxx.xxx.xxx.xxx
 admin$ 
 
-# 
+# 将admin设置为root用户
+
+
+# 创建GPU分组
+admin$ sudo groupadd -g 1500 nvidia0...9 
+
+# 设置每个GPU的所属用户组
+admin$ sudo chown root:nvidia0...9
+# 测试GPU权限
+
+# 为每个项目组创建分组
+admin$ sudo groupadd -g 1600 brain.cancer
+admin$ sudo groupadd -g 1601 breast.cancer
+admin$ sudo groupadd -g 1602 prostate.cancer
+admin$ sudo groupadd -g 1603 lung.cancer
+
+# 将对应用户添加到对应分组
+admin$ sudo usermod -g breast.cancer codewang
+admin$ sudo usermod -g breast.cancer dy
+
+# 修改用户创建文件的默认权限
+# 掩码： umask
+# 初创文件的最大权限是666，减去掩码0002，
+# 表示初创文件的权限是664。初创目录的最大权限是777，减去掩码
+# 进入目录，需要可执行权限
+# 修改/etc/profile, 为每个用户修改umask = 0002 
+
+# 修改用户数据的所属分组
+admin$ sudo chown -R username:group data_root
+# 例如： sudo chown -R codewang:breast.cancer /mnt/data/dataset/wb
+
+
+# home目录下创建文件默认只有自己有写权限
 ```
 
 
 
 
+
+``` powershell
+admin
+codewang  wangbin
+czm       chenzemeng
+hx        hanxu
+js        jiangshan
+jzb       jiangzebing
+ljg       lujianguo
+lk        likang
+lp        liuping
+mm        maomeng
+tyj       删除   # 有人用
+wyf       wangyifei
+zxx       zhouxuexin
+dy        dongyu  # 数据是否移动  删除
+jjl       jiangjinglu 
+lgw       liuguowei
+ljy       lujiayi
+ll        liulei
+lty       liutenyin
+qrm       qinruiming
+user 
+wzd       wangzhaodong
+zll       zhangleilei
+zy        zhouyu
+cyf       chenyifei
+fxx       fengxiangxin
+jrc       jinrenchao
+jy        jinyong
+lhy       lihaoyuan
+ljz       
+llx       liluxiong
+lyl       longyuling
+wr        wangrui
+yj        
+zwh       zhangwenhua
+
+
+
+# 1. 做的什么项目， 是否使用GPU
+# 2. 四个服务器选一个
+# 3. 建议同一项目组在同一服务器
+# 4. 如果不使用GPU，限制时间内移除自己的数据
+
+```
 
 
 
