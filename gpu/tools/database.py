@@ -115,7 +115,7 @@ class _GpuCore(object):
 
 
 
-class GPUs(Database):
+class GPUs(DataBase):
 	""" runtime GPU status.
 	"""
 	def __init__(self):

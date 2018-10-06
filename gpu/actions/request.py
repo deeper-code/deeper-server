@@ -66,7 +66,7 @@ def request_gpu_list(uid, gpu_list):
 			'using'    : None,
 			'end'      : None,
 			'release'  : None,
-			'gpu_list' : ' '.join([str(x) for x in gpu_list])   
+			'gpu_list' : ' '.join([str(x) for x in gpu_list]) ,  
 			'group_id' : live.shape[0],
 			'finish'   : False
 		})
@@ -83,7 +83,7 @@ def request_gpu_list(uid, gpu_list):
 
 		# 
 		# 添加此用户到对应的GPU分组中。
-
+	return 'success'
 
 
 
@@ -91,7 +91,7 @@ def request_gpu_list(uid, gpu_list):
 # client :  1001|get|1|5|7
 # server :  gpu_get(1001, [1,5,7])
 
-def gpu_get(uid, gpu_list):
+def server_gpu_get(uid, gpu_list):
 	# check usre infomation.
 	gpudata  = GpuData(config.GPU_DATA)
 
@@ -118,6 +118,11 @@ def gpu_get(uid, gpu_list):
 
 
 
-
+def client_gpu_get(uid, gpu_list):
+	''' gpu_list = `[1, 2, 3]` 
+	target : uid|command|1|2|3
+	'''
+	ret = '%d|get|' % uid + '|'.join([str(x) for x in gpu_list])
+	return ret
 
 

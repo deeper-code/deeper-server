@@ -28,13 +28,13 @@ class Remote(object):
 
 
 
+
 """ Communication Inter Process with pipe"""
 class PipeRemote(Remote):
 	def __init__(self, itype):
 		super(PipeRemote, self).__init__(itype)
 		self.name = 'pipe'
 		self.prepare()
-
 
 	def prepare(self):
 		if self.itype == 'server':
@@ -47,35 +47,37 @@ class PipeRemote(Remote):
 			os.mkfifo(config.FIFO_OUT, 0o644)
 
 			self.rf = os.open(config.FIFO_IN, os.O_RDONLY)
-			self.wf = os.open(config.FIFO_OUT, os.O_SYNC | os.O_CREAT | os.O_RDWR)
+			self.wf = os.open(config.FIFO_OUT,os.O_CREAT | os.O_RDWR)
 
 		else:
 			if not os.path.exists(config.FIFO_IN) or \
 			   not os.path.exists(config.FIFO_OUT):
 			   raise IOError('FIFO file not exists. You may run sever frist.')
 
-			self.rf = os.open(config.FIFO_OUT, os.O_SYNC | os.O_RDWR)
-			self.wf = os.open(config.FIFO_IN, os.O_SYNC | os.O_CREAT | os.O_RDWR)
+			self.rf = os.open(config.FIFO_OUT,  os.O_RDWR)
+			self.wf = os.open(config.FIFO_IN,   os.O_CREAT | os.O_RDWR)
 
 	def send(self, msg):
 		os.write(self.wf, msg.encode())
 
 
 	def accept(self):
-		return os.read(self.rf, 2048).decode()
+		buf = os.read(self.rf, 2048).decode()
+		os.close(self.rf)
+		if self.itype == 'server':
+			self.rf = os.open(config.FIFO_IN, os.O_RDONLY)
+		else:
+			self.rf = os.open(config.FIFO_OUT,  os.O_RDWR)
+
+		return buf
 
 	def clear(self):
 		os.close(self.rf)
 		os.close(self.wf)
-		if os.path.exists(config.FIFO_IN):
+		if os.path.exists(config.FIFO_IN) and self.itype == 'server':
 			os.remove(config.FIFO_IN)
-		if os.path.exists(config.FIFO_OUT):
+		if os.path.exists(config.FIFO_OUT) and self.itype == 'server':
 			os.remove(config.FIFO_OUT)
-
-
-
-
-
 
 
 

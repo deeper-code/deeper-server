@@ -2,7 +2,7 @@
 
 | version | author | date       | diff  | other          |
 | ------- | ------ | ---------- | ----- | -------------- |
-| V1.0    | 王彬   | 2018.09.06 | Setup | initialization |
+| V1.0    | 王彬     | 2018.09.06 | Setup | initialization |
 
 ---
 
@@ -15,16 +15,16 @@
 **请历届管理员严格把守以下规则：**
 
 -  服务其ip地址不得以任何形式对外泄露
-- 不得将服务器账号租、借给实验室意外人员
-- 不使用GPU（仅占用CPU）的项目不得使用服务器
-- 实验室老成员毕业离校后，及时回收账号
-- 同一项目同一程序一次不得使用超过4块GPU，特殊情况除外
-- 任何人不得私自删除、升级**公用库**（cuda、cudnn、tensorflow、keras、pytorch、caffa等），需经过管理员和大家一致同意后方可升级
-- 普通用户（非管路员）不得修改`/etc/profile`、`/etc/bashrc`等公共配置文件
-- 每人限制一个服务器账号，不使用远程桌面（或使用频率低于2次/天）的用户，远程桌面应该处于常关状态
-- 除管理员和负责人(金人超老师)以外，任何人不得使用root登录，root密码不得向任何人泄露
-- 服务器机房每天必须检查一次，确保空调处于开启状态，室内温度不得超过40度
-- 每隔一段时间要检查服务器机架后侧电线，防止温度过高造成电线老化漏电
+-  不得将服务器账号租、借给实验室意外人员
+-  不使用GPU（仅占用CPU）的项目不得使用服务器
+-  实验室老成员毕业离校后，及时回收账号
+-  同一项目同一程序一次不得使用超过4块GPU，特殊情况除外
+-  任何人不得私自删除、升级**公用库**（cuda、cudnn、tensorflow、keras、pytorch、caffa等），需经过管理员和大家一致同意后方可升级
+-  普通用户（非管路员）不得修改`/etc/profile`、`/etc/bashrc`等公共配置文件
+-  每人限制一个服务器账号，不使用远程桌面（或使用频率低于2次/天）的用户，远程桌面应该处于常关状态
+-  除管理员和负责人(金人超老师)以外，任何人不得使用root登录，root密码不得向任何人泄露
+-  服务器机房每天必须检查一次，确保空调处于开启状态，室内温度不得超过40度
+-  每隔一段时间要检查服务器机架后侧电线，防止温度过高造成电线老化漏电
 
 ----
 
@@ -44,12 +44,12 @@
 
        实验室目前共2台大服务器（10-GPU），2台小服务器（2-GPU）。其硬件配置如表1-1所示。
 
-| 服务器编号 |   俗名    | GPU数量 |       GPU型号       | 显存 | 内存  | 硬盘 |                           CPU型号                            | 负责人 |
-| :--------: | :-------: | :-----: | :-----------------: | :--: | :---: | :--: | :----------------------------------------------------------: | :----: |
-|     1      | 老服务器  |   10    | GeForce GTX 1080 Ti | 12GB | 128GB | 12TB | `Intel(R) Xeon(R) CPU E5-2683 v3 @ 2.00GHz（2CPU-28核-64bit）` | 曹海潮 |
-|     2      | 新服务器  |   10    | GeForce GTX 1080 Ti | 12GB | 128GB | 4TB  | `Intel(R) Xeon(R) CPU E5-2683 v3 @ 2.00GHz（2CPU-28核-64bit）` |  王彬  |
-|     3      | 小服务器1 |    2    | GeForce GTX 1080 Ti | 12GB | 64GB  | 2TB  | `Intel(R) Xeon(R) CPU E5-2603 v4 @ 1.70GHz (1GPU-6核-64bit)` |  王彬  |
-|     4      | 小服务器2 |         | GeForce GTX 1080 Ti | 12GB | 64GB  | 2TB  | `Intel(R) Xeon(R) CPU E5-2603 v4 @ 1.70GHz (1GPU-6核-64bit)` | 陆建国 |
+| 服务器编号 |  俗名   | GPU数量 |        GPU型号        |  显存  |  内存   |  硬盘  |                  CPU型号                   | 负责人  |
+| :---: | :---: | :---: | :-----------------: | :--: | :---: | :--: | :--------------------------------------: | :--: |
+|   1   | 老服务器  |  10   | GeForce GTX 1080 Ti | 12GB | 128GB | 12TB | `Intel(R) Xeon(R) CPU E5-2683 v3 @ 2.00GHz（2CPU-28核-64bit）` | 曹海潮  |
+|   2   | 新服务器  |  10   | GeForce GTX 1080 Ti | 12GB | 128GB | 4TB  | `Intel(R) Xeon(R) CPU E5-2683 v3 @ 2.00GHz（2CPU-28核-64bit）` |  王彬  |
+|   3   | 小服务器1 |   2   | GeForce GTX 1080 Ti | 12GB | 64GB  | 2TB  | `Intel(R) Xeon(R) CPU E5-2603 v4 @ 1.70GHz (1GPU-6核-64bit)` |  王彬  |
+|   4   | 小服务器2 |       | GeForce GTX 1080 Ti | 12GB | 64GB  | 2TB  | `Intel(R) Xeon(R) CPU E5-2603 v4 @ 1.70GHz (1GPU-6核-64bit)` | 陆建国  |
 
 <center> 表1-1 服务器硬件配置表 </center>
 
@@ -64,23 +64,23 @@
 
         软件配置涉及到大家的深度学习平台，格外重要。请管理员及时维护此表（表1-2），一旦出现私自更新、删除公用库可按照此表进行恢复。**这里只统计公用数据库，公用库，公用应用程序, \*表示未统计项，或不重要**
 
-|     软件名称     |           1号            |           2号            |                3号                |                 4号                 | 表项维护人@维护日期 |
-| :--------------: | :----------------------: | :----------------------: | :-------------------------------: | :---------------------------------: | :-----------------: |
+|       软件名称       |           1号           |           2号           |               3号                |               4号               |     表项维护人@维护日期      |
+| :--------------: | :--------------------: | :--------------------: | :-----------------------------: | :----------------------------: | :-----------------: |
 |       `OS`       | `Ubuntu LTS 14.04(出厂)` | `Ubuntu LTS 14.04(出厂)` | `Ubuntu LTS 16.04  (王彬@2018.6)` | `Ubuntu LTS 16.04（陆建国@2018.6）` | `codewang@2018.9.6` |
-|      `CUDA`      |          `9.0`           |          `8.0`           |               `9.0`               |                `9.0`                | `codewang@2018.9.6` |
-|     `cudnn`      |           `*`            |           `*`            |               `8.5`               |                 `*`                 | `codewang@2018.9.6` |
-| `nvidia-driver`  |        `384.130`         |         `384.69`         |             `384.130`             |                 `*`                 | `codewang@2018.9.6` |
-|    `python3`     |         `3.4.3`          |         `3.4.3`          |              `3.6.5`              |                 `*`                 | `codewang@2018.9.6` |
-| `Tensorflow`-gpu |         `1.3.0`          |         `1.4.0`          |              `1.8.0`              |                 `*`                 | `codewang@2018.9.6` |
-|  `Tensorboard`   |         `0.1.8`          |         `0.4.0`          |              `1.8.0`              |                 `*`                 | `codewang@2018.9.6` |
-|     `Keras`      |         `2.0.8`          |         `2.1.6`          |              `2.2.0`              |                 `*`                 | `codewang@2018.9.6` |
-|    `Pytorch`     |           `无`           |         `0.1.0`          |                `*`                |                 `*`                 | `codewang@2018.9.6` |
-|     `Caffa`      |           `*`            |           `*`            |               `无`                |                 `*`                 | `codewang@2018.9.6` |
-|     `Theano`     |           `*`            |         `1.0.2`          |               `无`                |                 `*`                 | `codewang@2018.9.6` |
-|     `Mxnet`      |           `*`            |      `1.1.0.post0`       |               `无`                |                 `*`                 | `codewang@2018.9.6` |
-|    `xgboost`     |         `0.6a2`          |          `0.71`          |               `无`                |                 `*`                 | `codewang@2018.9.6` |
-|    `ipython`     |         `6.2.1`          |         `6.2.1`          |              `6.4.0`              |                 `*`                 | `codewang@2018.9.6` |
-|     `Cython`     |         `0.27.3`         |         `0.27.3`         |             `0.28.2`              |                 `*`                 | `codewang@2018.9.6` |
+|      `CUDA`      |         `9.0`          |         `8.0`          |              `9.0`              |             `9.0`              | `codewang@2018.9.6` |
+|     `cudnn`      |          `*`           |          `*`           |              `8.5`              |              `*`               | `codewang@2018.9.6` |
+| `nvidia-driver`  |       `384.130`        |        `384.69`        |            `384.130`            |              `*`               | `codewang@2018.9.6` |
+|    `python3`     |        `3.4.3`         |        `3.4.3`         |             `3.6.5`             |              `*`               | `codewang@2018.9.6` |
+| `Tensorflow`-gpu |        `1.3.0`         |        `1.4.0`         |             `1.8.0`             |              `*`               | `codewang@2018.9.6` |
+|  `Tensorboard`   |        `0.1.8`         |        `0.4.0`         |             `1.8.0`             |              `*`               | `codewang@2018.9.6` |
+|     `Keras`      |        `2.0.8`         |        `2.1.6`         |             `2.2.0`             |              `*`               | `codewang@2018.9.6` |
+|    `Pytorch`     |          `无`           |        `0.1.0`         |               `*`               |              `*`               | `codewang@2018.9.6` |
+|     `Caffa`      |          `*`           |          `*`           |               `无`               |              `*`               | `codewang@2018.9.6` |
+|     `Theano`     |          `*`           |        `1.0.2`         |               `无`               |              `*`               | `codewang@2018.9.6` |
+|     `Mxnet`      |          `*`           |     `1.1.0.post0`      |               `无`               |              `*`               | `codewang@2018.9.6` |
+|    `xgboost`     |        `0.6a2`         |         `0.71`         |               `无`               |              `*`               | `codewang@2018.9.6` |
+|    `ipython`     |        `6.2.1`         |        `6.2.1`         |             `6.4.0`             |              `*`               | `codewang@2018.9.6` |
+|     `Cython`     |        `0.27.3`        |        `0.27.3`        |            `0.28.2`             |              `*`               | `codewang@2018.9.6` |
 
 <center> 表1-2 服务器软件配置表 </center>
 
@@ -88,12 +88,12 @@
 
 IP地址是向学校申请的固定IP地址，如表1-3所示，校内任何地方均可以访问。**切记不可将服务IP地址告诉他人。**
 
-| 编号 |     IP地址      |
+|  编号  |      IP地址       |
 | :--: | :-------------: |
-| 1号  | xxx.xxx.xxx.253 |
-| 2号  | xxx.xxx.xxx.232 |
-| 3号  | xxx.xxx.xxx.226 |
-| 4号  | xxx.xxx.xxx.225 |
+|  1号  | xxx.xxx.xxx.253 |
+|  2号  | xxx.xxx.xxx.232 |
+|  3号  | xxx.xxx.xxx.226 |
+|  4号  | xxx.xxx.xxx.225 |
 
 <center> 表1-3 服务器IP配置表 </center> 
 
@@ -116,9 +116,9 @@ IP地址是向学校申请的固定IP地址，如表1-3所示，校内任何地�
 #### 2.1.1 深度学习库依赖关系
 
        我们知道CPU也好、GPU也好、硬盘、内存都是物理设备都属于硬件，那么操作系统或者计算机软件想要使用这些硬件，就需要驱动程序，这和Window是一样的。（虽然windows上有许多设备是免驱的，但是实质上他们使用的是公用驱动，万能驱动。比如鼠标、蓝牙键盘等，其实他们都是使用默认的USB设备驱动程序，所以可以免驱），所以我们想要使用GPU首先需要安装**驱动程序**。
-    
+
        除此之外，tensorflow这样的深度学习框架也不可能直接和GPU驱动程序打交道，不然tensorflow的软件体量就太大了，所以NVIDIA公司为这些上层应用软件提供了一些辅助程序，称之为**cuda**和**cudnn**。
-    
+
        然后就是我们熟悉的深度学习框架了，比如tensorflow、pytorch、mxnet、caffa等,**注意，Keras严格意义上来说并不是深度学习框架，它是以tensorflow或者theaon后后端的高级封装API库。**下面我们用一副图来了解它们的关系。如图2-1所示：
 
 ![软件库依赖关系](images/arch.png)
@@ -235,11 +235,11 @@ never fight alone    --> 可以看到已经设置成功
 >
 > ``` shell
 > ----- 以下为标准的/etc/profile文件配置 -----
-> 
+>
 > # modified by codewang @2018.09.07     --> 修改文件添加备注，这是管理员的责任
 > export PATH=$PATH:/usr/local/cuda/bin  
 > export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
-> 
+>
 > # 解释
 > # export PATH=$PATH:/usr/local/cuda/bin  
 > # 首先PATH=$PATH  也就是等于原内容，然后后面追加内容，我们之前讲过多个路径用冒号隔开
@@ -253,10 +253,10 @@ never fight alone    --> 可以看到已经设置成功
 >
 > ``` shell
 > ----- 以下为 codewang 的个人定制 ~/.bashrc 文件内容 -----
-> 
+>
 > export PATH=$PATH:/usr/local/cuda-9.0/bin  
 > export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-9.0/lib64
-> 
+>
 > # 解释
 > # 管理员设置了两个环境变量，我又在后面追加我自己想用的cuda9.0
 > # 这样，我的环境变量就包含了cuda8.0和cuda9.0， tensorflow依赖
@@ -579,7 +579,7 @@ user$ sudo pip3 install keras==2.2.0
 
   ``` shell
   user$ ifconfig
-  
+
   eth0      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx  
             UP BROADCAST MULTICAST  MTU:1500  Metric:1
             RX packets:0 errors:0 dropped:0 overruns:0 frame:0
@@ -587,7 +587,7 @@ user$ sudo pip3 install keras==2.2.0
             collisions:0 txqueuelen:1000 
             RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
             Memory:fb300000-fb37ffff 
-  
+
   eth1      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx  
             inet addr:xxx.xxx.xxx.xxx  Bcast:xxx.xxx.xxx.xxx  Mask:255.255.252.0
             inet6 addr: fe80::ae1f:6bff:fe14:4a4f/64 Scope:Link
@@ -598,7 +598,7 @@ user$ sudo pip3 install keras==2.2.0
             collisions:0 txqueuelen:1000 
             RX bytes:62143220880 (62.1 GB)  TX bytes:645669845490 (645.6 GB)
             Memory:fb200000-fb27ffff 
-  
+
   lo        Link encap:Local Loopback  
             inet addr:127.0.0.1  Mask:255.0.0.0
             inet6 addr: ::1/128 Scope:Host
@@ -775,21 +775,21 @@ root用户是唯一的，一台机器只能有一个root用户，root用户拥�
 
   ``` shell
   第一行是root用户的信息:
-  
+
   用户名称 : root,
-  
+
   密码: 是加密的所以显示为x,
-  
+
   用户ID（UID） : 0
-  
+
   组ID（GID）: 0 ，关于组(group)后面会讲解, (是当前有效分组)
-  
+
   用户相关信息 : root
-  
+
   home目录 : /root
-  
+
   用户环境 : /bin/bash ,用户环境是指bash解析器，我们在命令行写命令，或者写脚本都需要一个解析器来解析我们输入的内容，一般包括/bin/bash、/bin/sh等，一般推荐使用/bin/bash
-  
+
   ```
 
 - `sshd:x:116:65534::/var/run/sshd:/usr/sbin/nologin`
@@ -891,7 +891,6 @@ drwxrwxr-x  -->
 - **不能占用GPU，不做运算(特指Matlab和jupyter notebook)**
 
   有的程序运行完毕或者终止之后，进程并没有结束，这是管理员无法管理的，所以需要用户自觉。
-
 
 
 ----
@@ -1151,7 +1150,7 @@ lk$ echo "lk@ test made file in test_dir" > test_dir/test_file_2
 
   - 一个任务3块显卡应该是足够的，所以一次最多申请3块显卡。但是可以多次申请，比如某用户有两个任务，就可以申请两次每次最多3块显卡。**但是，只有第一次申请的GPU正常使用之后才可以继续申请第二批GPU**，这也是为了防止一个任务故意申请两次而使用多块GPU。
 
-  -  如果某用户申请两批`GPU`，系统会定时检查两批GPU的进程。如果发现两批`GPU`是同一个进程，系统将立即结束您的进程，并回收`GPU`使用权，记录一次**3级**违规。
+  - 如果某用户申请两批`GPU`，系统会定时检查两批GPU的进程。如果发现两批`GPU`是同一个进程，系统将立即结束您的进程，并回收`GPU`使用权，记录一次**3级**违规。
 
   - 申请`GPU`数量上限可弹性变化，例如节假日在系统资源空闲时，用户可向管理员提出申请超过3块GPU的权限。
 
@@ -1183,7 +1182,7 @@ lk$ echo "lk@ test made file in test_dir" > test_dir/test_file_2
 
   `解释`：本次更新之后，我们队每个项目组单独创建名称为项目名简称的用户组，对应的每个项目组的数据文件的所属用户组设置对应的用户组，并且权限设置为`664或者774`所以组内人员对当前组的数据具有读写权限，但是组外人员只具有读权限。所以为了保护大家的数据不被他人删除、修改。请尽量不要修改文件权限开发可写权限给其他人。
 
-- 
+- ​
 
 - pass
 
@@ -1225,7 +1224,7 @@ admin$ sudo usermod -g breast.cancer dy
 # 初创文件的最大权限是666，减去掩码0002，
 # 表示初创文件的权限是664。初创目录的最大权限是777，减去掩码
 # 进入目录，需要可执行权限
-# 修改/etc/profile, 为每个用户修改umask = 0002 
+# 修改/etc/profile, 为每个用户修改umask = 0002
 
 # 修改用户数据的所属分组
 admin$ sudo chown -R username:group data_root
@@ -1233,57 +1232,18 @@ admin$ sudo chown -R username:group data_root
 
 
 # home目录下创建文件默认只有自己有写权限
+#将所有将要删除的数据，暂时存放于 /mnt/data/temp_data_admin/ 下， 一个月后彻底删除
 ```
 
 
 
-
-
-``` powershell
-admin
-codewang  wangbin
-czm       chenzemeng
-hx        hanxu
-js        jiangshan
-jzb       jiangzebing
-ljg       lujianguo
-lk        likang
-lp        liuping
-mm        maomeng
-tyj       删除   # 有人用
-wyf       wangyifei
-zxx       zhouxuexin
-dy        dongyu  # 数据是否移动  删除
-jjl       jiangjinglu 
-lgw       liuguowei
-ljy       lujiayi
-ll        liulei
-lty       liutenyin
-qrm       qinruiming
-user 
-wzd       wangzhaodong
-zll       zhangleilei
-zy        zhouyu
-cyf       chenyifei
-fxx       fengxiangxin
-jrc       jinrenchao
-jy        jinyong
-lhy       lihaoyuan
-ljz       
-llx       liluxiong
-lyl       longyuling
-wr        wangrui
-yj        
-zwh       zhangwenhua
-
-
-
-# 1. 做的什么项目， 是否使用GPU
-# 2. 四个服务器选一个
-# 3. 建议同一项目组在同一服务器
-# 4. 如果不使用GPU，限制时间内移除自己的数据
-
-```
+| 项目名称  | 代号                   | 成员          | 服务器  | 更新时间      |
+| ----- | -------------------- | ----------- | ---- | --------- |
+| 乳腺癌诊断 | breats.cancer (1600) | codewang、dy | 小2   | 2018.10.6 |
+| 肋骨分割  |                      |             |      |           |
+| 心包分割  |                      |             |      |           |
+|       |                      |             |      |           |
+|       |                      |             |      |           |
 
 
 

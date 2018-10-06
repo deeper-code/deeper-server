@@ -1,7 +1,7 @@
 import sys
 import os
 #import argparse
-from tools import remote
+from tools import remote, Action
 from actions import check, request
 from tools import GpuData, RequestData
 import config
@@ -9,46 +9,12 @@ import config
 
 
 # method :
-# 客户端发来 uid|cmd|args
-# 所以每个功能函数需要接受至少参数
-# function(uid, arg1, ...)
-# 或者
-# function(uid, *args)
-# 
-# 返回值必须是字符串
-
-class Action(object):
-	'''Class for register action to special argument.'''
-	def __init__(self, name='None'):
-		self.name = name
-		self.args = {}
-
-	def register(self, cmd, action):
-		if self.args.get(cmd, 'None') != 'None':
-			raise ValueError('Command %s is already exists.' % cmd)
-		if not callable(action):
-			raise ValueError('Action must be callable.')
-
-		self.args[cmd] = action
-
-	def call(self, cmd, *args, **kwargs):
-		try:
-			return self.args[cmd](*args, **kwargs)  
-		except:
-			return 'exception'
-
-
-	def __getitem__(self, cmd):
-		if cmd in self.args.keys():
-			return self.args[cmd]
-		else:
-			raise ValueError('command %s not register.' % cmd)
-
-
+# 1. def method(uid(int), *args)  
+# 2. return a string for replay to client
 def regest_actions():
 	actions = Action(name='cbib')
-	actions.register('check',  check.check_request)
-	actions.register('get', request.gpu_get)
+	actions.register('check',  check.server_check_request)
+	actions.register('get', request.server_gpu_get)
 	return actions
 
 
@@ -63,12 +29,21 @@ def main():
 	while True:
 		buf = pipe.accept()  # "1001|check"
 		# parse command <format : uid|command|args>
-		uid, cmd, args = buf.split('|')
-
-		# call 
-		replay = actions.call(cmd, uid, *args)
-		# send replay
-		pipe.send(replay)
+		try:
+			print('recved : ', buf)
+			uid, cmd, *args = buf.split('|')
+			# call 
+			replay = actions.call(cmd, uid, args)
+			
+			# send replay
+			pipe.send(replay)
+			
+			# Log
+			pass
+		except:
+			#print('error, recved: ', buf)
+			pass
+	pipe.clear()
 
 if __name__ == '__main__':
 	main()
