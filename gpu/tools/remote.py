@@ -4,6 +4,8 @@ sys.path.append('..')
 
 from gpu import config
 import os
+from subprocess import getstatusoutput
+
 
 
 class Remote(object):
@@ -43,11 +45,13 @@ class PipeRemote(Remote):
 			if os.path.exists(config.FIFO_OUT):
 				os.remove(config.FIFO_OUT)
 
-			os.mkfifo(config.FIFO_IN,  0o644)
-			os.mkfifo(config.FIFO_OUT, 0o644)
+			os.mkfifo(config.FIFO_IN,  0o664)
+			os.mkfifo(config.FIFO_OUT, 0o664)
+			_,_ = getstatusoutput('chown admin:cbib_dev %s' % config.FIFO_IN)
+			_,_ = getstatusoutput('chown admin:cbib_dev %s' % config.FIFO_OUT)
 
-			self.rf = os.open(config.FIFO_IN, os.O_RDONLY)
-			self.wf = os.open(config.FIFO_OUT,os.O_CREAT | os.O_RDWR)
+			self.rf = os.open(config.FIFO_IN, os.O_RDWR)
+			self.wf = os.open(config.FIFO_OUT,os.O_SYNC | os.O_RDWR)
 
 		else:
 			if not os.path.exists(config.FIFO_IN) or \
@@ -55,7 +59,7 @@ class PipeRemote(Remote):
 			   raise IOError('FIFO file not exists. You may run sever frist.')
 
 			self.rf = os.open(config.FIFO_OUT,  os.O_RDWR)
-			self.wf = os.open(config.FIFO_IN,   os.O_CREAT | os.O_RDWR)
+			self.wf = os.open(config.FIFO_IN,   os.O_SYNC | os.O_RDWR)
 
 	def send(self, msg):
 		os.write(self.wf, msg.encode())
@@ -63,12 +67,6 @@ class PipeRemote(Remote):
 
 	def accept(self):
 		buf = os.read(self.rf, 2048).decode()
-		os.close(self.rf)
-		if self.itype == 'server':
-			self.rf = os.open(config.FIFO_IN, os.O_RDONLY)
-		else:
-			self.rf = os.open(config.FIFO_OUT,  os.O_RDWR)
-
 		return buf
 
 	def clear(self):

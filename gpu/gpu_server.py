@@ -6,7 +6,7 @@ from actions import check, request
 from tools import GpuData, RequestData
 import config
 
-
+import argparse
 
 # method :
 # 1. def method(uid(int), *args)  
@@ -18,7 +18,20 @@ def regest_actions():
 	return actions
 
 
+def reset():
+	requests = RequestData(config.REQUEST_DATA, reset=True)
+	gpudata  = GpuData(config.GPU_DATA, reset=True)
+
+
 def main():
+	
+	parse = argparse.ArgumentParser()
+	parse.add_argument('--reset',   action='store_true', help='重置所有数据库', default=False)
+	args = parse.parse_args()
+
+	if args.reset == True:
+		reset()
+
 	# to created remote-handel <using pipe>
 	pipe = remote.PipeRemote(itype='server')
 
@@ -33,15 +46,16 @@ def main():
 			print('recved : ', buf)
 			uid, cmd, *args = buf.split('|')
 			# call 
-			replay = actions.call(cmd, uid, args)
+			replay = actions.call(cmd, int(uid), args)
 			
 			# send replay
 			pipe.send(replay)
 			
 			# Log
 			pass
-		except:
-			#print('error, recved: ', buf)
+		except Exception as e:
+			print('error, recved: ', buf)
+			print(e)
 			pass
 	pipe.clear()
 

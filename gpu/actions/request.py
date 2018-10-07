@@ -6,7 +6,7 @@ sys.path.append('..')
 import config
 from tools import GpuData, RequestData, GPUs
 import time
-
+from subprocess import getstatusoutput
 
 def get_lock(uid):
 	''' Can this user(uid)  request gpu? 
@@ -34,10 +34,10 @@ def get_lock(uid):
 	for l in live.index:
 		gpu_list = live['gpu_list'].loc[l].split()
 		for nr in gpu_list:
-			total, used, free, processes = gpus[nr].data()
+			total, used, free, processes = gpus[int(nr)].data()
 			if len(processes) == 0:
 				# No process
-				return False, 'The GPU-%d you requested is not used, so you can not continue to request another gpus.' % nr
+				return False, 'The GPU-%d you requested is not used, so you can not continue to request another gpus.' % int(nr)
 	return True,''
 
 
@@ -52,15 +52,16 @@ def request_gpu_list(uid, gpu_list):
 	gpudata  = GpuData(config.GPU_DATA)
 
 	# 1. requests
-	#uuid, name = get_uuid(uid)
+	status, name = getstatusoutput('grep %s /etc/passwd' % str(uid))
+	name  = name.split(':')[0]
 	live = requests.slice({
 				'finish' : False,
 				'uid':uid})
 
-	requests.df.append({
+	requests.df = requests.df.append({
 			'rid'   : requests.df.shape[0] + 1,
 			'uid'   : uid,
-			'uuid'  : uuid,
+			'uuid'  : 'none',
 			'name'  : name,
 			'start'    : time.time(),
 			'using'    : None,
@@ -69,20 +70,24 @@ def request_gpu_list(uid, gpu_list):
 			'gpu_list' : ' '.join([str(x) for x in gpu_list]) ,  
 			'group_id' : live.shape[0],
 			'finish'   : False
-		})
+		},ignore_index=True)
 
 
 	for nr in gpu_list:
 		# update database.
 		#gpudata.df.iloc[nr] 
-		gpudata.df['status'].iloc[nr] = requested
+		gpudata.df['status'].iloc[nr] = 'requested'
 		gpudata.df['onwer'].iloc[nr]  = uid
 		gpudata.df['start'].iloc[nr]  = time.time()
-		gpudata.df['end'].iloc[nr]    = time.time() + 3600.0
+		gpudata.df['end'].iloc[nr]    = time.time() + 3600
 		gpudata.df['why'].iloc[nr]    = 'requested'
 
 		# 
 		# 添加此用户到对应的GPU分组中。
+		 
+	requests.local()
+	gpudata.local()
+
 	return 'success'
 
 
@@ -114,8 +119,8 @@ def server_gpu_get(uid, gpu_list):
 			return 'GPU-%d you requested is not free. using gpu -l to have a checking.' % inx
 
 	# request GPUs
-	request_gpu_list(uid, _list)
-
+	return request_gpu_list(uid, _list)
+	 
 
 
 def client_gpu_get(uid, gpu_list):

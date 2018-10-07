@@ -88,7 +88,8 @@ class _GpuCore(object):
 		'''
 		stat, output = getstatusoutput('nvidia-smi -q -i %d -d PIDS,MEMORY' % self.nr)
 		if stat == 0:
-			output = [x.strip() for x in  output.strip().split('/n')]
+			output = [x.strip() for x in  output.strip().split('\n')]
+			print(output)
 			mem_inx  = output.index('FB Memory Usage')
 			# memeary
 			self.total = output[mem_inx+1].split(':')[-1].strip()  # 11172 MiB
@@ -106,8 +107,9 @@ class _GpuCore(object):
 						P['name']    = output[inx+2].split(':')[1].strip()
 						P['gpu_mem'] = output[inx+3].split(':')[1].strip()
 						self.procs.append(P)
-			except:
+			except Exception as e:
 				# No processes
+				print(e)
 				pass
 
 			# updata GpuData
@@ -124,7 +126,7 @@ class GPUs(DataBase):
 		self._gpus = []
 		for i in range(config.NR_GPU):
 			gpu = _GpuCore(nr=i)
-			gpu.update()
+			gpu.updata()
 			self._gpus.append(gpu)
 
 	def __getitem__(self, inx):
@@ -132,7 +134,7 @@ class GPUs(DataBase):
 
 	def updata(self):
 		for i in range(config.NR_GPU):
-			self._gpus[i].update()
+			self._gpus[i].updata()
 
 
 
@@ -141,9 +143,6 @@ class GpuData(DataBase):
 		super(GpuData, self).__init__(file, reset)
 
 		self.name = 'gpu database'
-		if not os.path.exists(file) and reset == False:
-			raise ValueError('Database file %s not exists.' % file)
-
 		self.file = file
 		# GPU status
 		#  nr : Nomber of gpu range from 0 to 9
@@ -156,7 +155,10 @@ class GpuData(DataBase):
 		self.columns = ['nr', 'status', 'onwer', 'start', 'end', 'why']
 
 		if not reset:
-			self.df =  pd.read_csv(file)
+			if not os.path.exists(self.file):
+				self.reset()
+			else:
+				self.df =  pd.read_csv(file)
 		else:
 			self.reset()
 
@@ -181,9 +183,6 @@ class RequestData(DataBase):
 		super(RequestData, self).__init__(file, reset)
 		self.name = 'user information database'
 		self.file = file
-		if not os.path.exists(file) and reset == False:
-			raise ValueError('Database file %s not exists.' % file)
-
 
 		# rid : request id
 		# uid  user id
@@ -198,7 +197,11 @@ class RequestData(DataBase):
 		# finish : pass
 		self.columns = ['rid','uid', 'uuid', 'name', 'start', 'end', 'gpu_list', 'group_id', 'finish']
 		if not reset:
-			self.df =  pd.read_csv(file)
+			if not os.path.exists(self.file):
+				self.df = pd.DataFrame(columns=self.columns)
+				self.local()
+			else:
+				self.df =  pd.read_csv(file)
 		else:
 			self.reset()
 

@@ -1210,10 +1210,12 @@ admin$ sudo chown root:nvidia0...9
 # 测试GPU权限
 
 # 为每个项目组创建分组
-admin$ sudo groupadd -g 1600 brain.cancer
 admin$ sudo groupadd -g 1601 breast.cancer
-admin$ sudo groupadd -g 1602 prostate.cancer
-admin$ sudo groupadd -g 1603 lung.cancer
+admin$ sudo groupadd -g 1600 rib.seg
+admin$ sudo groupadd -g 1602 cardiac.seg
+admin$ sudo groupadd -g 1603 cardiac.artery.seg
+admin$ sudo groupadd -g 1604 doc.experi
+
 
 # 将对应用户添加到对应分组
 admin$ sudo usermod -g breast.cancer codewang
@@ -1233,17 +1235,170 @@ admin$ sudo chown -R username:group data_root
 
 # home目录下创建文件默认只有自己有写权限
 #将所有将要删除的数据，暂时存放于 /mnt/data/temp_data_admin/ 下， 一个月后彻底删除
+# home目录放在/mnt/data/temp_data_admin/home 下面
+# 原home目录清空
+# 数据放在 /mnt/data/temp_data_admin/data 下面
 ```
 
 
 
-| 项目名称  | 代号                   | 成员          | 服务器  | 更新时间      |
-| ----- | -------------------- | ----------- | ---- | --------- |
-| 乳腺癌诊断 | breats.cancer (1600) | codewang、dy | 小2   | 2018.10.6 |
-| 肋骨分割  |                      |             |      |           |
-| 心包分割  |                      |             |      |           |
-|       |                      |             |      |           |
-|       |                      |             |      |           |
+| 项目名称   | 代号                        | 成员             | 服务器  | 更新时间      |
+| ------ | ------------------------- | -------------- | ---- | --------- |
+| 乳腺癌诊断  | breats.cancer (1601)      | codewang、dy    | 小1   | 2018.10.6 |
+| 前列腺癌诊断 | prostate.cancer (未分配)     | ljg、lyl        | 小2   | 2018.10.6 |
+| 肺癌诊断   | lung.cancer（未分配）          | ll             | 老    | 2018.10.6 |
+| 脑癌诊断   | brain.cancer (未分配)        | mm             | 老    | 2018.10.6 |
+| 肋骨分割   | rib.seg (1600)            | jzb、lp、lhy、fxx | 新    | 2018.10.6 |
+| 心包分割   | cardiac.seg (1602)        | zxx            | 新    | 2018.10.6 |
+| 心脏冠脉分割 | cardiac.artery.seg (1603) | lk             | 新    | 2018.10.6 |
+| 博士试验6  | doc.experi  (1604)        | zwh、zy         | 新    | 2018.10.6 |
+| _      | 有人使用，已保留                  | tyj            |      |           |
+
+**以下操作只涉及新服务器用户，其他服务器用户请忽略**
+
+- **所有已统计的用户数据没有改动，全部保留**
+
+- **所有未统计的用户的数据和`home`数据认为是待删除数据**
+
+  `解释：`考虑到服务器维护时间为国庆假期，所以没有参与到统计的用户的数据被认为是**待删除**数据，
+
+  所有待删除数据（`/mnt/data/`）已被移动到 `/mnt/data/dataset/temp_data_admin/data `下
+
+  所有待删除数据 (`/mnt/data1`) 已被移动到 `/mnt/data1/temp_data_admin/data`下
+
+  所有待删除数据(`/home`) 已被移动到 `/mnt/data/dataset/temp_data_admin/home`下
+
+  **需要恢复数据**的用户自行拷贝数据到原位置（请通知管理员@吴欣蓉，做统计统计工作，谢谢配合）
+
+  **注意拷贝时使用 cp -rf ， 例如: cp -rf  /mnt/data/dataset/temp_data_admin/home/codewang /home/**
+
+- **待删除数据保留一个月，截止到11月8日，届时全部清除**
+
+  `解释`: 一个月不恢复的数据被判定为垃圾数据，直接删除。
+
+- **所有的用户（新服务器）必须加入到对应的项目组**
+
+  `解释`为了保护大家的数据不被他人误删，我们为每个项目组设置了特殊的文件权限，**在同一项目组的用户对组内人员的数据拥有读写权限，对其他项目组的数据只有读权限，home目录只有自己拥有读写权限，其他人只拥有读权限**。所以为了保护大家的数据，请注意自己的数据的权限，不要随便使用chmod更改自己的文件权限。所有用户创建文件的默认权限已设置为`wr-wr--r-(664)`
+
+  也请各位未参与统计工作的用户，尽早联系管理员，做好统计工作。
+
+- **sudo权限去除mkdir/rm/mv/vim/vm 等命令**
+
+  `解释`：同样了，项目组内部成员对项目组成员的数据是拥有读写权限的，所以并不需要sodo权限，同时为了保护大家的数据不被他人强制(sudo)删除、修改等，我们去除了sudo权限中的部分命令，以禁止命令如下：
+
+  ``` shell
+  # 系统相关
+  reboot  : 重启,     shutdown : 关机,      useradd : 创建用户,   userdel   : 删除用户, 
+  usermod : 修改用户   groupadd : 创建分组   groupdel : 删除分组    groupmod  : 修改分组,
+
+  # 文件相关
+  mkdir : 创建文件夹,  vim/vm : 编辑文件,  rm : 删除文件,  mv : 移动、重命名,
+  chmod : 修改权限, chown : 修改所有者、所属组, 
+  ```
+
+- **未参与统计工作的用户，不开放远程桌面**
+
+  `解释`： 上一次服务器大维护时期，为了给大家傻瓜式的操作体验，我将远程桌面设置为免密登录，固定端口，这就需要要每个人的远程桌面处于常开状态，这样比较消耗系统资源。考虑到有些用户不经常使用服务器，所以本次维护后远程桌面的免密登录只对经常使用的用户开放，其他用户使用临时申请端口即可。
+
+  由于部分用户未参与统计工作，所以暂时关闭你们的远程桌面，如需开放远程桌面，请及时联系我@codewang
+
+- **以上修改于2018.10.6操作，操作人：王彬**
+
+  `解释`大家的数据都很宝贵，所以上述所有关于数据的移动和清除工作都是手动操作的非脚本执行，是经过再三确认的，大家可以放心。以下是部分核心的操作命令，供大家检查。如有数据丢失，操作员负全责。
+
+  ``` shell
+  # 修改用户创建文件的默认权限
+  # 修改/etc/profile, 为每个用户修改umask = 0002
+
+
+  # 为每个项目组创建分组
+  admin$ sudo groupadd -g 1601 breast.cancer
+  admin$ sudo groupadd -g 1600 rib.seg
+  admin$ sudo groupadd -g 1602 cardiac.seg
+  admin$ sudo groupadd -g 1603 cardiac.artery.seg
+  admin$ sudo groupadd -g 1604 doc.experi
+
+  # 将对应用户添加到对应分组
+  admin$ sudo usermod -g rib.seg jzb
+  admin$ sudo usermod -g rib.seg lp
+  admin$ sudo usermod -g rib.seg lhy
+  admin$ sudo usermod -g rib.seg fxx
+  admin$ sudo usermod -g cardiac.seg zxx
+  admin$ sudo usermod -g cardiac.artery.seg lk
+  admin$ sudo usermod -g doc.experi zwh
+  admin$ sudo usermod -g doc.experi zy
+
+  # 修改用户数据的所属分组
+  admin$ sudo chown -R jzb:rib.seg jzb
+  ...
+
+  # 修改用户数据的权限
+  admin$ sudo chmod -R 775 xxx
+  ...
+
+  # /mnt/data/dataset/ 下面数据的清除
+  admin$ sudo mv -rf xxx temp_data_admin/data/
+
+  # /mnt/data1/ 下面数据的清除
+  admin$ sudo mv -rf xxx temp_data_admin/data/
+
+  # home 目录下数据的清除
+  admin@user:/home$ sudo cp -rf codewang /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf codewang/*
+  admin@user:/home$ sudo cp -rf cyf /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf cyf/*
+  admin@user:/home$ sudo cp -rf czm /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf czm/*
+  admin@user:/home$ sudo cp -rf hx /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf hx/*
+  admin@user:/home$ sudo cp -rf jjl /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf jjl/*
+  admin@user:/home$ sudo cp -rf jrc /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo cp -rf js /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf js/*
+  admin@user:/home$ sudo cp -rf jy /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf jy/*
+  admin@user:/home$ sudo cp -rf lgw /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf lgw/*
+  admin@user:/home$ sudo cp -rf ljg /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf ljg/*
+  [sudo] password for admin: 
+  admin@user:/home$ sudo cp -rf ljy /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf ljy/*
+  [sudo] password for admin: 
+  admin@user:/home$ sudo cp -rf ljz /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf ljz/*
+  admin@user:/home$ sudo cp -rf ll /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf ll/*
+  admin@user:/home$ sudo cp -rf llx /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf llx/*
+  admin@user:/home$ sudo cp -rf lty /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf lty/*
+  admin@user:/home$ sudo cp -rf lyl /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf lyl/*
+  admin@user:/home$ sudo cp -rf mm /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf mm/*
+  admin@user:/home$ sudo cp -rf prostate-notebooks /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf prostate-notebooks
+  admin@user:/home$ sudo cp -rf qrm /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf qrm/*
+  admin@user:/home$ sudo cp -rf wr /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf wr/*
+  admin@user:/home$ sudo cp -rf wyf /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf wyf/*
+  admin@user:/home$ sudo cp -rf wzd /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf wzd/*
+  admin@user:/home$ sudo cp -rf yj /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf yj/*
+  admin@user:/home$ sudo cp -rf zll /mnt/data/dataset/temp_data_admin/home/
+  admin@user:/home$ sudo rm -rf zll/*
+  ```
+
+  ​
+
+
+
+
 
 
 
