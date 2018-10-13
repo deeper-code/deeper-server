@@ -1,4 +1,4 @@
-# CBIB Ubuntu Server Manual
+# wb1994CBIB Ubuntu Server Manual
 
 | version | author | date       | diff  | other          |
 | ------- | ------ | ---------- | ----- | -------------- |
@@ -686,13 +686,67 @@ user$ sudo /etc/init.d/networking restart  # ---> 重启网络服务
 
 ### 2.3 SSH 服务配置
 
+SSH全称(Secure Shell)，也是程序员最喜欢的服务器登录方式，可以看成是远程的终端。SSH分为客户端和服务端，服务端是常驻于内存的，是一个守护进程我们称之为**sshd**, 我们登录时用的就是客户端了。
+
+#### 2.3.1 SSH安装
+
+ssh是免费软件，我们可以很容易的安装它，在Ubuntu下只需要执行：
+
+`sudo apt-get install openssh-server openssh-client`
+
+#### 2.3.2 SSHD的配置
+
+由于是远程登录的软件，所以免不了要进行一些配置，包括安全方面的，登录限制等等。sshd的配置文件为`/etc/ssh/sshd_config`, 一般使用默认配置即可，但是我们要多做一步**禁止root用户登录**， 之前我们也讨论过，root用户拥有至高无上的权限，所以为了安全起见，root用户是不可以远程登录的。
+
+``` shell
+# --------- /etc/ssh/sshd_config ------------
+# 以下为参考内容
+Port 22  # “Port”设置sshd监听的端口号。
+
+ListenAddress 192.168.1.1  # “ListenAddress”设置sshd服务器绑定的IP地址。
+
+HostKey /etc/ssh/ssh_host_key # “HostKey”设置包含计算机私人密匙的文件。
+
+KeyRegenerationInterval 3600 # KeyRegenerationInterval”设置在多少秒之后自动重新生成服务器的密匙（如果使用密匙）。重新生成密匙是为了防止用盗用的密匙解密被截获的信息。
+
+ServerKeyBits 768  # “ServerKeyBits”定义服务器密匙的位数。
+
+
+SyslogFacility AUTH  # “SyslogFacility”设置在记录来自sshd的消息的时候，是否给出“facility code”。
+
+
+LogLevel INFO # “LogLevel”设置记录sshd日志消息的层次。INFO是一个好的选择。查看sshd的man帮助页，已获取更多的信息。
+
+ 
+LoginGraceTime 120 # “LoginGraceTime”设置如果用户不能成功登录，在切断连接之前服务器需要等待的时间（以秒为单位）。
+
+
+PermitRootLogin no  # “PermitRootLogin”设置root能不能用ssh登录。这个选项一定不要设成“yes”。
+
+ 
+StrictModes yes # “StrictModes”设置ssh在接收登录请求之前是否检查用户家目录和rhosts文件的权限和所有权。这通常是必要的，因为新手经常会把自己的目录和文件设成任何人都有写权限。
+
+
+ClientAliveInterval 300（默认为0） # 每5分钟，服务器向客户端发一个消息，用于保持连接
+
+
+IgnoreRhosts yes # “IgnoreRhosts”设置验证的时候是否使用“rhosts”和“shosts”文件。
+
+
+IgnoreUserKnownHosts yes # “IgnoreUserKnownHosts”设置ssh daemon是否在进行RhostsRSAAuthentication安全验证的时候忽略用户的“$HOME/.ssh/known_hosts”
+```
+
+
+
+#### 2.3.3 客户端登录选项
+
+我们使用ssh登录时，打开终端软件键入：`ssh  username@IP` 即可登录。
+
+
+
 ### 2.4 远程桌面配置
 
 <center>此部分挪动到第三章</center>
-
-### 2.5 远程传输配置(ftp/samba/nfs)
-
-### 2.6 sublime+sftp 远程文件同步
 
 
 
@@ -1313,9 +1367,7 @@ admin$ sudo chown -R username:group data_root
   ``` shell
   # 修改用户创建文件的默认权限
   # 修改/etc/profile, 为每个用户修改umask = 0002
-  ```
-
-
+ 
   # 为每个项目组创建分组
   admin$ sudo groupadd -g 1601 breast.cancer
   admin$ sudo groupadd -g 1600 rib.seg
@@ -1399,8 +1451,6 @@ admin$ sudo chown -R username:group data_root
   admin@user:/home$ sudo rm -rf zll/*
   ```
 
-  ​
-
 
 
 
@@ -1433,5 +1483,7 @@ admin$ sudo chown -R username:group data_root
 
 **此部分单独成册，见README.md**
 
+
+  ```
 
   ```
