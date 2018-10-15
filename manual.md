@@ -742,7 +742,10 @@ IgnoreUserKnownHosts yes # “IgnoreUserKnownHosts”设置ssh daemon是否在�
 
 我们使用ssh登录时，打开终端软件键入：`ssh  username@IP` 即可登录。
 
-
+```shell
+> ssh codewang@xxx.xxx.xxx.xxx  # 以用户codewang身份登录服务器SSHD服务
+> codewang@xxx.xxx.xxx.xxx's password:  # 输入密码即可登录
+```
 
 ### 2.4 远程桌面配置
 
@@ -909,10 +912,100 @@ drwxrwxr-x  -->
       	   对该文件的权限为rwx.
       	 - 乙用户对该文件来说是其他用户，所以拥有读权限和可执行权限
       	 - root用户拥有一切权限。
-    
-
-
 ```
+
+linux的每个用户都可以加入组，并且可以加入多个用户组，但是只能有一个**默认组**， 那么当我们创建文件时，该文件的所属用户组就是该用户的当前组啦。
+
+**默认权限**：
+
+当我们创建文件或者文件夹时，默认的权限是什么样的？ 默认权限可不可以修改？， 答案是当然可以。
+
+- Linux中文件默认的最高权限是`666`, 即`rw-rw-rw`， 文件夹的默认最高权限是`777`,即`rwxrwxrwx`, 其实当我们切换目录，或者说想要进入一个目录是需要该目录的**可执行权限**的。
+
+- 每个用户有一个环境变量**umask**， 我们创建文件或者文件夹的默认权限就是**最高权限 - umask**
+
+例如：
+
+``` shell
+# 设置umask
+codewang$ export umask=2
+# 创建文件
+codewang$ echo "hello world" > 1.txt
+# 文件权限： 文件的默认最高权限是666, 那么该文件的权限为666-umask = 666-2 = 664
+
+# 创建文件夹
+codewang$ mkdir test
+# 文件夹权限： 文件夹默认最高权限为777, 那么该文件夹的权限为777-umask = 777-2=775
+```
+
+实例分析：
+
+``` shell
+# 用户信息
+codewang$ id   # id 命令查看用户的id信息
+# 输出为:
+uid=1001(codewang) gid=1601(breast.cancer) groups=1601(breast.cancer),27(sudo),1024(cbib_dev),1234(cbiber)
+
+# 从上述输出可以看出：
+# codewang 用户的用户ID为： 1001
+# codewang 的组ID为：1601 (breast.cancer)
+# 除此之外， codewang还加入了 groups中的这些组。
+
+codewang$ umask
+0002     # codewang 的umask 为 2
+
+# 创建文件：
+codewang$ echo "hello world" > 1.txt
+# 查看文件属性
+codewang$ ls -al 1.txt 
+# -rw-rw-r-- 1 codewang breast.cancer 12 10月 15 19:40 1.txt
+# 第一个 ``-`` 表示这是一个普通文件
+# 文件权限为：rw-rw-r-- 即： 664    ---> 最高文件权限-umask = 666 - 2 = 664  
+# 该文件的拥有者为： codewang
+# 该文件的所属组为： breast.cancer  ---> codewang的gid为1601 即 breast.cancer
+
+# 创建文件夹
+codewang$ mkdir test
+# 查看文件夹信息
+codewang$ ls -al 
+#drwxrwxr-x  2 codewang breast.cancer  4096 10月 15 19:43 test
+# 第一个 ``d`` 表示这是一个文件夹
+# 文件权限为：rwxrwxr-x 即： 775    ---> 最高文件夹权限-umask = 777 - 2 = 775 
+# 该文件夹的拥有者为： codewang
+# 该文件夹的所属组为： breast.cancer  ---> codewang的gid为1601 即 breast.cancer
+```
+
+**修改文件权限**
+
+修改文件权限的命令为**chmod**
+
+````shell
+codewang$ chmod 777 1.txt         # ---> 可以使用数字形式来修改文件的权限
+codewang$ chmod rwxrwxrwx 1.txt   # ---> 也可以使用字符型来修改文件权限
+codewang$ chmod +x   1.txt        # ---> 给当前用户(自己)增加可执行权限
+codewang$ chmod -rx  1.txt        # ---> 去除当前用户的读和执行权限
+codewang$ chmod a+rw 1.txt        # ---> 所有用户增加读写权
+````
+
+修改文件夹权限的方法和修改文件权限是一样的，但是要注意的是：
+
+``` shell
+codewang$ chmod 777 test  # ---> 修改文件夹权限
+
+# 修改的只是该 文件夹 的权限， 文件夹内的文件权限是不变的。
+# 如果想要修改该文件夹下所有文件、子文件夹等的权限，需要加上 -R 选项，即递归
+codewang$ chmod -R 777 test
+```
+
+
+
+### 3.1.3 Linux 用户组管理
+
+- pass
+
+
+
+
 
 
 
@@ -1235,9 +1328,7 @@ lk$ echo "lk@ test made file in test_dir" > test_dir/test_file_2
 
   `解释`：本次更新之后，我们队每个项目组单独创建名称为项目名简称的用户组，对应的每个项目组的数据文件的所属用户组设置对应的用户组，并且权限设置为`664或者774`所以组内人员对当前组的数据具有读写权限，但是组外人员只具有读权限。所以为了保护大家的数据不被他人删除、修改。请尽量不要修改文件权限开发可写权限给其他人。
 
-- ​
-
-- pass
+- 
 
 
 
@@ -1295,20 +1386,20 @@ admin$ sudo chown -R username:group data_root
 
 
 
-| 项目名称     | 代号                      | 成员              | 服务器 | 更新时间  |
-| ------------ | ------------------------- | ----------------- | ------ | --------- |
-| 乳腺癌诊断   | breats.cancer (1601)      | codewang、dy      | 小1    | 2018.10.6 |
-| 前列腺癌诊断 | prostate.cancer (未分配)  | ljg、lyl          | 小2    | 2018.10.6 |
-| 肺癌诊断     | lung.cancer（未分配）     | ll                | 老     | 2018.10.6 |
-| 脑癌诊断     | brain.cancer (未分配)     | mm                | 老     | 2018.10.6 |
-| 肋骨分割     | rib.seg (1600)            | jzb、lp、lhy、fxx | 新     | 2018.10.6 |
-| 心包分割     | cardiac.seg (1602)        | zxx               | 新     | 2018.10.6 |
-| 心脏冠脉分割 | cardiac.artery.seg (1603) | lk                | 新     | 2018.10.6 |
-| 博士试验6    | doc.experi  (1604)        | zwh、zy           | 新     | 2018.10.6 |
-| _            | 有人使用，已保留          | tyj               |        |           |
-| 缺血性脑中风 | brain.apoplexy            | cyx               | 新     | 2018.10.9 |
-
-
+| 项目名称     | 代号                      | 成员              | 服务器 | 更新时间   |
+| ------------ | ------------------------- | ----------------- | ------ | ---------- |
+| 乳腺癌诊断   | breats.cancer (1601)      | codewang、dy      | 小1    | 2018.10.6  |
+| 前列腺癌诊断 | prostate.cancer (未分配)  | ljg、lyl          | 小2    | 2018.10.6  |
+| 肺癌诊断     | lung.cancer（未分配）     | ll                | 老     | 2018.10.6  |
+| 脑癌诊断     | brain.cancer (未分配)     | mm                | 老     | 2018.10.6  |
+| 肋骨分割     | rib.seg (1600)            | jzb、lp、lhy、fxx | 新     | 2018.10.6  |
+| 心包分割     | cardiac.seg (1602)        | zxx               | 新     | 2018.10.6  |
+| 心脏冠脉分割 | cardiac.artery.seg (1603) | lk                | 新     | 2018.10.6  |
+| 博士试验6    | doc.experi  (1604)        | zwh、zy           | 新     | 2018.10.6  |
+| _            | 有人使用，已保留          | tyj               |        |            |
+| 缺血性脑中风 | brain.apoplexy            | cyx               | 新     | 2018.10.9  |
+| 颈椎分割     | vertebra.seg（1605）      | llx、zll          | 新     | 2018.10.15 |
+|              |                           |                   |        |            |
 
 
 
